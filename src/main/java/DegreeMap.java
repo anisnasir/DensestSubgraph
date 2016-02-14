@@ -16,7 +16,7 @@ public class DegreeMap {
 		if (map.containsKey(degree)) {
 			HashSet<String> nodes = map.get(degree);
 			nodes.add(nodeId);
-			map.replace(degree, nodes);
+			map.put(degree, nodes);
 		}else {
 			HashSet<String> neighbors = new HashSet<String> ();
 			neighbors.add(nodeId);
@@ -28,7 +28,7 @@ public class DegreeMap {
 		if (map.containsKey(degree)) {
 			HashSet<String> nodes = map.get(degree);
 			nodes.remove(nodeId);
-			map.replace(degree, nodes);
+			map.put(degree, nodes);
 		}
 	}
 	

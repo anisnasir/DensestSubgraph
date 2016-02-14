@@ -17,15 +17,14 @@ public class Main {
 	}
 
 	public static void main(String[] args) throws IOException {
-		if (args.length < 0) {
+		if (args.length < 3) {
 			ErrorMessage();
 		}
-		String directory = "/Users/anis/Datasets/Densest/";
-		
-		String fileName = "com-lj.ungraph.txt";
-		//String fileName= "com-dblp.ungraph.txt";
-		//String fileName= "snap_facebook.txt";
-		//String fileName = "test_case10.txt";
+		String fileName = args[0];
+		int windowSize = Integer.parseInt(args[1]);
+		boolean LOGGING = Boolean.parseBoolean(args[2]);
+	
+		String directory = "/root/Datasets/";
 		
 		String inFileName = directory + fileName;
 		String sep = "\t";
@@ -49,9 +48,8 @@ public class Main {
 		StreamEdge item = reader.nextItem();
 		
 		//Declare outprint interval variables
-		int PRINT_INTERVAL=100000;
+		int PRINT_INTERVAL=1000000;
 		long simulationStartTime = System.currentTimeMillis();
-		boolean LOGGING = false;
 		
 		//Data Structures specific to the Algorithm
 		NodeMap nodeMap = new NodeMap();
@@ -60,7 +58,6 @@ public class Main {
 		BagOfSnowballs bag = new BagOfSnowballs(LOGGING);
 		
 		//Initializing the window
-		int windowSize = 100000;
 		FixedSizeSlidingWindow sw = new FixedSizeSlidingWindow(windowSize);
 		
 		//Start reading the input
@@ -68,7 +65,7 @@ public class Main {
 		int edgeCounter = 0;
 		while (item != null) {
 			if (++edgeCounter % PRINT_INTERVAL == 0) {
-				System.out.println("Read " + edgeCounter/100000
+				System.out.println("Read " + edgeCounter/PRINT_INTERVAL
 						+ "M edges.\tSimulation time: "
 						+ (System.currentTimeMillis() - simulationStartTime)
 						/ 1000 + " seconds");
