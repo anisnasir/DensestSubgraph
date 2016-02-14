@@ -34,7 +34,10 @@ public class StreamEdgeReader {
 			edgeCount++;
 			String src = tokens[0];
 			String dest = tokens[1];
-			return new StreamEdge(src, dest);
+			if(src.compareTo(dest) < 0)
+				return new StreamEdge(src, dest);
+			else
+				return new StreamEdge(dest, src);
 			
 		} catch (IOException e) {
 			System.err.println("Unable to read from file");

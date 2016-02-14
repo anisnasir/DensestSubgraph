@@ -1,6 +1,9 @@
 
-public class EdgeHandler {
-	public static void handleEdgeAddition(StreamEdge item, NodeMap nodeMap, DegreeMap degreeMap ) {
+public class UtilityFunctions {
+	UtilityFunctions() {
+		
+	}
+	public void handleEdgeAddition(StreamEdge item, NodeMap nodeMap, DegreeMap degreeMap ) {
 		String src = item.getSource();
 		String dest = item.getDestination();
 		
@@ -16,7 +19,7 @@ public class EdgeHandler {
 		degreeMap.incrementDegree(predegree2, dest);
 	}
 	
-	public static void handleEdgeDeletion(StreamEdge oldestEdge, NodeMap nodeMap, DegreeMap degreeMap ) {
+	public void handleEdgeDeletion(StreamEdge oldestEdge, NodeMap nodeMap, DegreeMap degreeMap ) {
 		String oldSrc = oldestEdge.getSource();
 		String oldDest = oldestEdge.getDestination();
 		

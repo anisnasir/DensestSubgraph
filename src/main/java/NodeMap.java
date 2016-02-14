@@ -19,7 +19,7 @@ public class NodeMap {
 		if (map.containsKey(src)) {
 			HashSet<String> neighbors = map.get(src);
 			neighbors.add(dest);
-			map.replace(src, neighbors);
+			map.put(src, neighbors);
 			return neighbors.size();
 		}else {
 			HashSet<String> neighbors = new HashSet<String> ();
@@ -60,12 +60,31 @@ public class NodeMap {
 	    while (it.hasNext()) {
 	        Entry<String, HashSet<String>> pair = it.next();
 	        System.out.println(pair.getKey() + " = " + pair.getValue());
-	        it.remove(); // avoids a ConcurrentModificationException
 	    }
 	}
 	
 	public HashSet<String> getNeighbors(String node) {
 		return map.get(node);
+	}
+	
+	boolean contains(StreamEdge item) {
+		String src = item.getSource();
+		String dst = item.getDestination();
+		
+		if(map.containsKey(src)) {
+			HashSet<String> neighbors = map.get(src);
+			if(neighbors != null)
+				if(neighbors.contains(dst)) {
+					if(map.containsKey(dst))
+					{
+						HashSet<String> another = map.get(dst);
+						if(another.contains(src))
+							return true;
+					}
+				}
+		}
+		return false;
+		
 	}
 	
 }

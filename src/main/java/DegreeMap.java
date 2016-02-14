@@ -45,6 +45,15 @@ public class DegreeMap {
 		removeNode(degree,nodeId);
 		addNode(degree-1,nodeId);
 	}
+	
+	HashSet<String> getNodesBetween(double upperBound, double lowerBound) {
+		if(Math.floor(upperBound) < lowerBound) {
+			return null;
+		}else {
+			return map.get((int)Math.round(lowerBound));
+		}
+	}
+	
 
 	
 	
