@@ -136,7 +136,7 @@ public class BagOfSnowballs {
 				for(String s: s2Nodes) {
 					HashSet<String> neig = nodeMap.getNeighbors(s);
 					if(neig != null) {
-						E12+=s1.intersection(neig, s1Nodes);
+						E12+=s2.intersection(neig, s1Nodes);
 					}
 				}
 			}
