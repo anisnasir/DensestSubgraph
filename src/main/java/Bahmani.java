@@ -6,44 +6,57 @@ import java.util.Set;
 public class Bahmani {
 	double epsilon;
 	Bahmani(double epsilon) {
+		this.epsilon = epsilon;
+	}
+	
+	HashMap<String,HashSet<String>> deepCopy(HashMap<String,HashSet<String>> graph) {
+		HashMap<String,HashSet<String>> returnGraph = new HashMap<String,HashSet<String>>();
+		for(String str:graph.keySet()) {
+			HashSet<String> neighbors = new HashSet<String>(graph.get(str));
+			returnGraph.put(str, neighbors);
+		}
+		return returnGraph;
 		
 	}
 	
-	double getApproximation(HashMap<String,HashSet<String>> graph, int numEdges, int numNodes) {
+	Densest getApproximation(HashMap<String,HashSet<String>> graph, int numEdges, int numNodes) {
+		Densest returnResult = new Densest();
+		graph = deepCopy(graph);
+		
+		Set<String> densest_subgraph = new HashSet<String>(graph.keySet());
 		double density = numEdges/(double)numNodes;
 		double max_density = density;
-		Set<String> densest_subgraph = graph.keySet();
+		int new_edges = numEdges;
 		while(!graph.isEmpty()) {
-			density= removeNode(graph,density);
+			new_edges = removeNode(graph,density, new_edges);
+			
+			density = (graph.size()==0) ? 0  : (new_edges/(double)graph.size());
 			if(density > max_density) {
-				density = max_density;
-				densest_subgraph = graph.keySet();
+				max_density = density;
+				densest_subgraph =new HashSet<String>(graph.keySet());;
 			}
 		}
-		return max_density;
+		returnResult.setDensity(max_density);
+		returnResult.setDensest(densest_subgraph);
+		return returnResult;
 	}
 	
-	double removeNode(HashMap<String,HashSet<String>> graph, double density) {
+	int removeNode(HashMap<String,HashSet<String>> graph, double density,int numEdges) {
+		double threshold = 2*(1+epsilon)*density;
 		HashSet<String> nodesRemove = new HashSet<String>();
-		int numNodes = graph.size();
-		int numEdges = 0;
 		for(String str: graph.keySet()) {
-			numEdges += graph.get(str).size();
-			if(graph.get(str).size() < 2*(1+epsilon)*density)
+			if(graph.get(str).size() <= threshold) {
 				nodesRemove.add(str);	
+			}
 		}
-		numEdges/=2;
-		
 		for(String str: nodesRemove) {
 			HashSet<String> neighbors = graph.get(str); 
 			for(String neighbor: neighbors) {
-				graph.get(str).remove(neighbor);
 				graph.get(neighbor).remove(str);
 				numEdges--;
 			}
 			graph.remove(str);
-			numNodes--;
 		}
-		return numEdges/(double)numNodes;
+		return numEdges;
 	}
 }
