@@ -1,28 +1,34 @@
+package src;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Set;
 import java.util.UUID;
 
-import com.google.common.collect.Sets;
 
-public class SnowBall {
+public class SnowBall implements Serializable, Comparable<SnowBall>{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1872315406990468794L;
 	double maximalDensity;
 	double density;
 	int numEdges;
 	int numNodes;
 	String id;
-	Bahmani approximator = new Bahmani(0);
+	Bahmani approximator = new Bahmani(0.05);
+	SnowBallStats stats; 
 	
 	HashMap<String,HashSet<String>> graph;
 	KCoreDecomposition kCore;
 	boolean LOGGING;
-	SnowBall(boolean logging) {
-		LOGGING = logging;
-		id = UUID.randomUUID().toString();
-		density = 0;
-		graph = new HashMap<String,HashSet<String>>();
-		kCore = new KCoreDecomposition(graph);
+	public SnowBall(boolean logging, SnowBallStats stats) {
+		this.LOGGING = logging;
+		this.id = UUID.randomUUID().toString();
+		this.density = 0;
+		this.graph = new HashMap<String,HashSet<String>>();
+		this.kCore = new KCoreDecomposition(graph);
+		this.stats = stats;
 	}
 	
 	boolean containsNode (String src ) {
@@ -44,6 +50,7 @@ public class SnowBall {
 		}
 		graph.remove(src);
 		kCore.removeNode(src);
+		stats.removeNode(this, src);
 		numNodes--;
 	}
 	void setMaximalDensity(double externalDensity, NodeMap nodeMap) {
@@ -139,6 +146,7 @@ public class SnowBall {
 		 */
 		boolean flag = true;
 		double newDensity = getDensity();
+		HashSet<String> removeNodes = new HashSet<String>();
 		for(String str:graph.keySet()) {
 			int globalDegree = nodeMap.getDegree(str);
 			HashSet<String> neighbors = graph.get(str);
@@ -149,27 +157,32 @@ public class SnowBall {
 					kCore.removeEdge(str, neighbor);
 				}
 				numEdges-=localDegree;
-				graph.remove(str);
+				removeNodes.add(str);
 				kCore.removeNode(str);
+				stats.removeNode(this,str);
 				numNodes--;
-				return false;
+				flag =  false;
 			}else if (localDegree < newDensity) {
 				for(String neighbor: neighbors) {
 					graph.get(neighbor).remove(str);
 					kCore.removeEdge(str, neighbor);
 				}
 				numEdges-=localDegree;
-				graph.remove(str);
+				removeNodes.add(str);
+				stats.removeNode(this,str);
 				kCore.removeNode(str);
 				numNodes--;
 				
 				if(globalDegree > maximalDensity) {
 					temp.add(str);
 				}
-				return false;
+				flag = false;
 			}
 			
 		}
+		if(!flag)
+			for(String str:removeNodes) 
+				graph.remove(str);
 		return flag;
 	}
 	
@@ -237,8 +250,6 @@ public class SnowBall {
 						kCore.addEdge(src, dst);
 					}
 			}
-		
-		
 	}
 	
 	void print() {
@@ -284,5 +295,15 @@ public class SnowBall {
 	}
 	boolean isEmpty() {
 		return (this.getNumEdges()== 0 && this.getNumNodes() == 0);
+	}
+
+	@Override
+	public int compareTo(SnowBall o) {
+		if (id.compareTo(o.id) > 0)
+			return 1;
+		else if (id.compareTo(o.id) < 0)
+			return -1;
+		else 
+			return 0;
 	}
 }

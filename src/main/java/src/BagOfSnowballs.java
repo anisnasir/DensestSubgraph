@@ -1,5 +1,4 @@
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+package src;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -12,11 +11,11 @@ public class BagOfSnowballs {
 	double maximalDensity = 0;
 	boolean LOGGING;
 	int count = 0; 
+	SnowBallStats stats = new SnowBallStats();
 
 	BagOfSnowballs(boolean logging) {
 		LOGGING = logging;
 		bag = new LinkedList<SnowBall>();
-		
 	}
 
 	void addEdge(StreamEdge edge, NodeMap nodeMap) {
@@ -26,42 +25,58 @@ public class BagOfSnowballs {
 		int srcDegree = nodeMap.getDegree(src);
 		int dstDegree = nodeMap.getDegree(dst);
 
-
 		if(LOGGING) {
 			System.out.println("+ ("+ src+ ", "+dst+")");
 			System.out.println("srcDegree: "+ srcDegree+ ", dstDegree: "+dstDegree+", maximal density: "+ maximalDensity);
 		}
-
+		
 		if (srcDegree < maximalDensity && dstDegree < maximalDensity) {
 			return;
 		} else if (srcDegree >= maximalDensity && dstDegree < maximalDensity ) {
 			SnowBall temp = addNode(src,nodeMap);
-
-			synchronizeSnowBalls(temp,nodeMap);
+			double tempDensity = temp .getDensity();
+			if(tempDensity > maximalDensity)
+				synchronizeSnowBalls(temp,nodeMap);
 
 		} else if (srcDegree < maximalDensity && (double)dstDegree >= maximalDensity ) {
 			SnowBall temp = addNode(dst,nodeMap);
-
-			synchronizeSnowBalls(temp,nodeMap);
+			double tempDensity = temp .getDensity();
+			if(tempDensity > maximalDensity)
+				synchronizeSnowBalls(temp,nodeMap);
 		} else {
 
 			SnowBall srcSnowBall = addNode(src,nodeMap);
 			SnowBall dstSnowBall = addNode(dst, nodeMap);
 
-			if(srcSnowBall.id == dstSnowBall.id) {
+			if(srcSnowBall.equals(dstSnowBall)) {
 				srcSnowBall.addEdge(edge);
-				synchronizeSnowBalls(srcSnowBall,nodeMap);
+				double tempDensity = srcSnowBall .getDensity();
+				if(tempDensity > maximalDensity)
+					synchronizeSnowBalls(srcSnowBall,nodeMap);
+				
+				HashSet<String> nodes = new HashSet<String>();
+				srcSnowBall.ensureFirstInVariant(nodeMap,nodes);
+				for(String node:nodes)
+					addNode(node,nodeMap);
+				
 			}else {
+				stats.addEdge(srcSnowBall, dstSnowBall, edge);
 				if(this.canMerge(srcSnowBall, dstSnowBall, nodeMap)) {
 					merge(srcSnowBall,dstSnowBall,nodeMap);	
-
-					synchronizeSnowBalls(srcSnowBall,nodeMap);
+					stats.removeSnowBall(dstSnowBall);
+					double tempDensity = srcSnowBall .getDensity();
+					if(tempDensity > maximalDensity)
+						synchronizeSnowBalls(srcSnowBall,nodeMap);
 				} else {
-					synchronizeSnowBalls(srcSnowBall,nodeMap);
+					double tempDensity = srcSnowBall .getDensity();
+					if(tempDensity > maximalDensity)
+						synchronizeSnowBalls(srcSnowBall,nodeMap);
+					tempDensity = dstSnowBall .getDensity();
+					if(tempDensity > maximalDensity)
+						synchronizeSnowBalls(dstSnowBall,nodeMap);
 				}	
 			}
 		}
-		this.getMaximalDensity(nodeMap);
 
 		if(LOGGING) {
 			System.out.println("Maximal Density: "+this.getMaximalDensity(nodeMap));
@@ -88,7 +103,7 @@ public class BagOfSnowballs {
 			}
 		}
 		if(max == null) {
-			SnowBall newBall = new SnowBall(LOGGING);
+			SnowBall newBall = new SnowBall(LOGGING,stats);
 			newBall.addNode(src, nodeMap);
 			newBall.setMaximalDensity(this.getMaximalDensity(nodeMap), nodeMap);
 			bag.add(newBall);
@@ -108,7 +123,6 @@ public class BagOfSnowballs {
 		if(s1.id == s2.id) 
 			return false;
 		else {
-
 			Set<String> s1Nodes = s1.getNodes();
 			Set<String> s2Nodes = s2.getNodes();
 
@@ -123,7 +137,7 @@ public class BagOfSnowballs {
 
 			double max = Math.max(rho1,rho2);
 
-			int E12 = 0;
+			int E12=0;
 			if(s1Nodes.size() < s2Nodes.size()) {
 				for(String s: s1Nodes) {
 					HashSet<String> neig = nodeMap.getNeighbors(s);
@@ -140,6 +154,7 @@ public class BagOfSnowballs {
 					}
 				}
 			}
+			
 			if(E12 == 0)
 				return false;
 
@@ -270,17 +285,21 @@ public class BagOfSnowballs {
 					s.removeEdge(edge,nodeMap);
 					temp =s;
 					break;	
-				}	
-				HashSet<String> nodes = new HashSet<String>();
-				s.ensureFirstInVariant(nodeMap,nodes);
-				for(String node:nodes)
-					addNode(node,nodeMap);
+				}
+				if(s.contains(src) || s.contains(dst)) {
+					HashSet<String> nodes = new HashSet<String>();
+					s.ensureFirstInVariant(nodeMap,nodes);
+					for(String node:nodes)
+						addNode(node,nodeMap);
+					if(s.isEmpty())
+						bag.remove(s);
+				}
 			}
 			
 			if(temp!=null) {
 				HashSet<String> visited = new HashSet<String>();
 				if(!isConnected(temp,src,dst,visited)) {
-					SnowBall newSnowBall = new SnowBall(LOGGING);
+					SnowBall newSnowBall = new SnowBall(LOGGING,stats);
 					for(String s:visited) {
 						temp.removeNode(s);
 						if(nodeMap.getDegree(s) >= maximalDensity)
@@ -294,9 +313,6 @@ public class BagOfSnowballs {
 					if(!newSnowBall.isEmpty())
 						bag.add(newSnowBall);
 				}
-				if(dstDegree < maximalDensity)
-					temp.removeNode(dst); 
-				
 				HashSet<String> nodes = new HashSet<String>();
 				temp.ensureFirstInVariant(nodeMap,nodes);
 				for(String node:nodes)
@@ -335,13 +351,7 @@ public class BagOfSnowballs {
 		
 		for(int i = 0;i<bag.size();i++) {
 			SnowBall s = bag.get(i);
-			s.setMaximalDensity(density, nodeMap);	
-			HashSet<String> nodes = new HashSet<String>();
-			s.ensureFirstInVariant(nodeMap,nodes);
-			for(String node: nodes) {
-				addNode(node,nodeMap);
-			}
-			s.ensureSecondInVariant(nodeMap);
+			s.setMaximalDensity(density, nodeMap);
 		}	
 	}
 	void verifyConnectivity(NodeMap nodeMap) {
@@ -375,5 +385,19 @@ public class BagOfSnowballs {
 		}
 		return false;
 
+	}
+	Densest getApproximation(double epsilon) {
+		Bahmani b = new Bahmani(epsilon);
+		Densest returnResults = null;
+		double maxDensity = 0;
+		for(SnowBall s: bag) {
+			Densest tempDensest =b.getApproximation(s.graph, s.numEdges, s.numNodes);
+			if(tempDensest.density > maxDensity) {
+				maxDensity = tempDensest.getDensity();
+				returnResults = tempDensest;
+			}
+			
+		}
+		return returnResults;
 	}
 }

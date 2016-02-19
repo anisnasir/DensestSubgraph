@@ -1,3 +1,4 @@
+package src;
 
 
 import java.io.BufferedReader;
@@ -24,15 +25,18 @@ public class Main {
 		int windowSize = Integer.parseInt(args[1]);
 		boolean LOGGING = Boolean.parseBoolean(args[2]);
 	
-		String directory = "/root/Datasets/";
+		String directory = "/Users/anis/Datasets/Densest/";
 		
 		String inFileName = directory + fileName;
 		String sep = "\t";
 		
 		BufferedWriter output_insert = new BufferedWriter(new FileWriter("output_insertion_"+fileName));
 		BufferedWriter output_remove = new BufferedWriter(new FileWriter("output_deletion_"+fileName));
+		BufferedWriter output_density = new BufferedWriter(new FileWriter("output_density_"+fileName));
+		
 		BufferedReader in = null;
-        try {
+        
+		try {
             InputStream rawin = new FileInputStream(inFileName);
             if (inFileName.endsWith(".gz"))
                 rawin = new GZIPInputStream(rawin);
@@ -60,6 +64,7 @@ public class Main {
 		//Initializing the window
 		FixedSizeSlidingWindow sw = new FixedSizeSlidingWindow(windowSize);
 		
+		long flush_counter = 0;
 		//Start reading the input
 		System.out.println("Reading the input");
 		int edgeCounter = 0;
@@ -71,9 +76,20 @@ public class Main {
 						/ 1000 + " seconds");
 				
 			}
+			
+			if(++flush_counter%10000 == 0) {
+				try {
+					output_insert.flush();
+					output_density.flush(); 
+					output_remove.flush();
+				}catch(Exception ex) {
+					
+				}
+			}
 			long insert_start_time = System.currentTimeMillis();
 			utility.handleEdgeAddition(item,nodeMap,degreeMap);
 			bag.addEdge(item, nodeMap);
+			Densest s = bag.getApproximation(0.1);
 			if(LOGGING)
 				bag.print();
 			
@@ -81,10 +97,17 @@ public class Main {
 			double insert_time = (insert_end_time-insert_start_time)/(double)(1000);
 			try {
 				output_insert.write(insert_time+"\n");
-				output_insert.flush();
+				
 			}catch(Exception ex) {
 				
 			}
+			try {
+				output_density.write(s.getDensity()+"\t"+ s.getDensest().size()+"\n");
+			}catch(Exception ex) {
+				
+			}
+			
+			
 			
 			StreamEdge oldestEdge = sw.add(item);
 			
@@ -94,13 +117,13 @@ public class Main {
 				bag.removeEdge(oldestEdge,nodeMap, degreeMap);
 				if(LOGGING)
 					bag.print();
+					s = bag.getApproximation(0.1);
 				reader.edgeCount--;	
 			}
 			long remove_end_time  = System.currentTimeMillis();
 			double remove_time = (remove_end_time-remove_start_time)/(double)1000;
 			try {
 			output_remove.write(remove_time+"\n");
-			output_remove.flush();
 			}catch(Exception ex) {
 				
 			}
@@ -116,8 +139,17 @@ public class Main {
 		}
 		
 		bag.print();
-		output_insert.close();
-		output_remove.close();
+		try { 
+			output_insert.flush();
+			output_remove.flush();
+			output_density.flush();
+			
+			output_insert.close();
+			output_remove.close();
+			output_density.close();
+		}catch(Exception ex) {
+			
+		}
 		System.out.println("Read " + edgeCounter
 				+ " M edges \t"+nodeMap.getNumNodes()+" nodes (Last Window) \tSimulation time: "
 				+ (System.currentTimeMillis() - simulationStartTime)
