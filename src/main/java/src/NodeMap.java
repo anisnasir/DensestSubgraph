@@ -12,11 +12,11 @@ import java.util.Map.Entry;
 public class NodeMap {
 	
 	HashMap<String,HashSet<String>>  map;
-	NodeMap() {
+	public NodeMap() {
 		map = new HashMap<String,HashSet<String>> ();
 	}
 	
-	int addNode(String src, String dest) { 
+	public int addNode(String src, String dest) { 
 		if (map.containsKey(src)) {
 			HashSet<String> neighbors = map.get(src);
 			neighbors.add(dest);

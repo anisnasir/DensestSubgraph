@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.LinkedList;
 import java.util.zip.GZIPInputStream;
 
 public class Main {
@@ -24,11 +25,11 @@ public class Main {
 		String fileName = args[0];
 		int windowSize = Integer.parseInt(args[1]);
 		boolean LOGGING = Boolean.parseBoolean(args[2]);
+		String sep = "\t";
 	
 		String directory = "/Users/anis/Datasets/Densest/";
 		
 		String inFileName = directory + fileName;
-		String sep = "\t";
 		
 		BufferedWriter output_insert = new BufferedWriter(new FileWriter("output_insertion_"+fileName));
 		BufferedWriter output_remove = new BufferedWriter(new FileWriter("output_deletion_"+fileName));
@@ -89,7 +90,7 @@ public class Main {
 			long insert_start_time = System.currentTimeMillis();
 			utility.handleEdgeAddition(item,nodeMap,degreeMap);
 			bag.addEdge(item, nodeMap);
-			Densest s = bag.getApproximation(0.1);
+			Densest s = bag.getApproximation();
 			if(LOGGING)
 				bag.print();
 			
@@ -117,7 +118,7 @@ public class Main {
 				bag.removeEdge(oldestEdge,nodeMap, degreeMap);
 				if(LOGGING)
 					bag.print();
-					s = bag.getApproximation(0.1);
+					s = bag.getApproximation();
 				reader.edgeCount--;	
 			}
 			long remove_end_time  = System.currentTimeMillis();
@@ -133,9 +134,7 @@ public class Main {
 					item = reader.nextItem();
 					if(item == null)
 						break;
-				}
-			
-			
+				}	
 		}
 		
 		bag.print();
@@ -157,6 +156,17 @@ public class Main {
 				+"\tMaximal Density: "+bag.getMaximalDensity(nodeMap));
 		// close all files
 		in.close();
+		
+		LinkedList<Densest> topK = bag.getTopK(3);
+		printTopK(topK);
+	}
+	
+	static void printTopK(LinkedList<Densest> topK) {
+		System.out.println("Priting top " + topK.size() );
+		for(int i =0;i <topK.size();i++) {
+			Densest d = topK.get(i);
+			d.print();
+		}
 	}
 	
 	

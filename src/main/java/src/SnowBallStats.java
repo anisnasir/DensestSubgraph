@@ -34,12 +34,13 @@ public class SnowBallStats {
 		}
 	}
 	
-	public int getEdgesBetween(SnowBall s1, SnowBall s2) {
+	public int getNumEdgesBetween(SnowBall s1, SnowBall s2) {
 		if(map.containsKey(s1)) {
 			LinkedList<SnowBallStatsEntry> list = map.get(s1);
 			for(SnowBallStatsEntry entry:list) {
-				if(entry.a.equals(s2))
+				if(entry.a.equals(s2)) {
 					return entry.getNumEdges();
+				}
 			}
 		}
 		return 0;
@@ -115,5 +116,37 @@ public class SnowBallStats {
 	
 	public int getSize() {
 		return this.map.size();
+	}
+	
+	public void removeEdge(SnowBall srcBall, String src, SnowBall dstBall, String dst) {
+		removeEdgeHelper(srcBall,src,dstBall,dst);
+		removeEdgeHelper(dstBall,dst,srcBall,src);
+	}
+	
+	void removeEdgeHelper(SnowBall srcBall, String src, SnowBall dstBall, String dst) {
+		if(map.containsKey(srcBall)) {
+			LinkedList<SnowBallStatsEntry> list = map.get(srcBall);
+			if(list!=null) {
+				for(SnowBallStatsEntry entry:list) {
+					if(entry.a.equals(dstBall)) {
+						entry.removeEdge(new StreamEdge(src,dst));
+					}
+				}
+			}
+		}
+	}
+	
+	public int getEdgesFromNodetoSnowBall(SnowBall srcSnowBall, String src, SnowBall dstSnowBall) {
+		if(map.containsKey(srcSnowBall)) {
+			LinkedList<SnowBallStatsEntry> list = map.get(srcSnowBall);
+			for(SnowBallStatsEntry entry: list) {
+					if(entry.a.equals(dstSnowBall)) {
+						if(entry.graph.containsKey(src))
+							return entry.graph.get(src).size();
+					}
+				}
+			}
+		return 0;
+			
 	}
 }

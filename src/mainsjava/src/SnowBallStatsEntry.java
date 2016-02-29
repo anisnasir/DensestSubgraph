@@ -17,14 +17,24 @@ public class SnowBallStatsEntry implements Serializable, Comparable<SnowBallStat
 		a=b;
 	}
 	void addEdge(StreamEdge edge) {
+		String src = edge.getSource();
+		String dst = edge.getDestination();
+		if(graph.containsKey(src))
+			if(graph.get(src).contains(dst))
+				return;
 		addEdge(edge.getSource(),edge.getDestination());
 		addEdge(edge.getDestination(),edge.getSource());
 		numEdges++;
 	}
 	void removeEdge(StreamEdge edge) {
-		removeNode(edge.getSource(),edge.getDestination());
-		removeNode(edge.getDestination(),edge.getSource());
-		numEdges--;
+		String src = edge.getSource();
+		String dst = edge.getDestination();
+		if(graph.containsKey(src))
+			if(graph.get(src).contains(dst)) {
+				removeNode(edge.getSource(),edge.getDestination());
+				removeNode(edge.getDestination(),edge.getSource());
+				numEdges--;
+			}
 	}
 	int addEdge(String src, String dest) { 
 		if (graph.containsKey(src)) {

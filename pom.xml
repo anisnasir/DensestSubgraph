@@ -9,6 +9,11 @@
 	<artifactId>guava</artifactId>
 	<version>17.0</version>
   </dependency>
+  <dependency>
+	<groupId>junit</groupId>
+	<artifactId>junit</artifactId>
+	<version>4.11</version>
+</dependency>
 </dependencies> 
 <build>
 <plugins>
@@ -22,7 +27,7 @@
           <manifest>
             <addClasspath>true</addClasspath>
             <classpathPrefix>lib/</classpathPrefix>
-            <mainClass>Main</mainClass>
+            <mainClass>src.Main</mainClass>
           </manifest>
         </archive>
       </configuration>

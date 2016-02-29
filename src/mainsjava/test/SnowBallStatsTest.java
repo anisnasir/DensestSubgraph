@@ -18,9 +18,17 @@ public class SnowBallStatsTest {
 		StreamEdge edge1 = new StreamEdge("A","B");
 		StreamEdge edge2 = new StreamEdge("B","C");
 		stats.addEdge(s1, s2, edge1);
+		stats.addEdge(s1, s2, edge1);
+		stats.addEdge(s1, s2, edge1);
+		stats.addEdge(s1, s2, edge1);
+		stats.addEdge(s1, s2, edge1);
+		assertEquals(stats.getNumEdgesBetween(s1, s2),1);
 		stats.addEdge(s1, s2, edge2);
-		assertNotEquals(stats.getEdgesBetween(s1, s2),1);
-		assertEquals(stats.getEdgesBetween(s1, s2),2);
+		assertEquals(stats.getNumEdgesBetween(s1, s2),2);
+		stats.removeEdge(s1, edge1.getSource(), s2, edge1.getDestination());
+		stats.removeEdge(s1, edge1.getSource(), s2, edge1.getDestination());
+		stats.removeEdge(s1, edge1.getSource(), s2, edge1.getDestination());
+		assertEquals(stats.getNumEdgesBetween(s1, s2),1);
 	}
 	
 	//test for removeSnowBall
@@ -32,7 +40,7 @@ public class SnowBallStatsTest {
 		StreamEdge edge1 = new StreamEdge("A","B");
 		stats.addEdge(s1, s2, edge1);
 		stats.removeSnowBall(s2);
-		assertEquals(stats.getEdgesBetween(s1, s2),0);
+		assertEquals(stats.getNumEdgesBetween(s1, s2),0);
 	}
 	
 	//test for multiple additions
@@ -48,9 +56,9 @@ public class SnowBallStatsTest {
 		stats.addEdge(s1, s2, edge1);
 		stats.addEdge(s2, s3, edge2);
 		stats.addEdge(s1, s3, edge3);
-		assertEquals(stats.getEdgesBetween(s1, s2),1);
-		assertEquals(stats.getEdgesBetween(s2, s3),1);
-		assertEquals(stats.getEdgesBetween(s1, s3),1);
+		assertEquals(stats.getNumEdgesBetween(s1, s2),1);
+		assertEquals(stats.getNumEdgesBetween(s2, s3),1);
+		assertEquals(stats.getNumEdgesBetween(s1, s3),1);
 	}
 	//test for mmultiple additions
 	@Test
@@ -67,9 +75,9 @@ public class SnowBallStatsTest {
 		stats.addEdge(s2, s3, edge2);
 		stats.addEdge(s1, s3, edge3);
 		stats.addEdge(s1, s2, edge4);
-		assertEquals(stats.getEdgesBetween(s1, s2),2);
-		assertEquals(stats.getEdgesBetween(s2, s3),1);
-		assertEquals(stats.getEdgesBetween(s1, s3),1);
+		assertEquals(stats.getNumEdgesBetween(s1, s2),2);
+		assertEquals(stats.getNumEdgesBetween(s2, s3),1);
+		assertEquals(stats.getNumEdgesBetween(s1, s3),1);
 	}
 	//test for removeSnowBall
 	@Test
@@ -86,9 +94,9 @@ public class SnowBallStatsTest {
 		stats.addEdge(s2, s3, edge2);
 		stats.addEdge(s1, s3, edge3);
 		stats.addEdge(s1, s2, edge4);
-		assertEquals(stats.getEdgesBetween(s1, s2),2);
-		assertEquals(stats.getEdgesBetween(s2, s3),1);
-		assertEquals(stats.getEdgesBetween(s1, s3),1);
+		assertEquals(stats.getNumEdgesBetween(s1, s2),2);
+		assertEquals(stats.getNumEdgesBetween(s2, s3),1);
+		assertEquals(stats.getNumEdgesBetween(s1, s3),1);
 		stats.removeSnowBall(s1);
 		assertEquals(stats.getSize(),2);
 		
@@ -109,12 +117,22 @@ public class SnowBallStatsTest {
 		stats.addEdge(s2, s3, edge2);
 		stats.addEdge(s1, s3, edge3);
 		stats.addEdge(s1, s2, edge4);
-		assertEquals(stats.getEdgesBetween(s1, s2),2);
-		assertEquals(stats.getEdgesBetween(s2, s3),1);
-		assertEquals(stats.getEdgesBetween(s1, s3),1);
+		assertEquals(stats.getNumEdgesBetween(s1, s2),2);
+		assertEquals(stats.getNumEdgesBetween(s2, s3),1);
+		assertEquals(stats.getNumEdgesBetween(s1, s3),1);
 		stats.removeNode(s1,"A");
-		assertEquals(stats.getEdgesBetween(s1, s2),0);
+		assertEquals(stats.getNumEdgesBetween(s1, s2),0);
 		
+	}
+	
+	@Test
+	public void testCase7() {
+		SnowBallStats stats = new SnowBallStats();
+		SnowBall s1 = new SnowBall(true,stats);
+		SnowBall s2 = new SnowBall(true,stats);
+		StreamEdge edge1 = new StreamEdge("A","B");
+		stats.addEdge(s1, s2, edge1);
+		assertEquals(stats.getEdgesFromNodetoSnowBall(s1, "A", s2),1);
 	}
 	
 	

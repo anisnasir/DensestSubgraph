@@ -7,7 +7,6 @@ public class KCoreDecomposition {
 	HashMap<String,HashSet<String>> graph;
 	HashMap<String,Integer> kCore;
 	
-	
 	KCoreDecomposition(HashMap<String,HashSet<String>> graph) {
 		kCore = new HashMap<String,Integer>();
 		this.graph = graph;
@@ -94,7 +93,6 @@ public class KCoreDecomposition {
 		for(String str: color) {
 			kCore.put(str, c+1);
 		}
-		
 	}
 	void updateKCoreafterDeletion(String src, String dst) {
 		HashSet<String> visited = new HashSet<String>();
@@ -163,8 +161,8 @@ public class KCoreDecomposition {
 		for(String str: color) {
 			kCore.put(str, c-1);
 		}
-		
 	}
+
 	
 	void print() {
 		for (String name: graph.keySet()){
