@@ -22,12 +22,12 @@ public class Main {
 		if (args.length < 3) {
 			ErrorMessage();
 		}
-		String fileName = args[0];
-		int windowSize = Integer.parseInt(args[1]);
-		boolean LOGGING = Boolean.parseBoolean(args[2]);
+		String directory = args[0];
+		String fileName = args[1];
+		int windowSize = Integer.parseInt(args[2]);
+		boolean LOGGING = Boolean.parseBoolean(args[3]);
 		String sep = "\t";
 	
-		String directory = "/Users/anis/Datasets/Densest/";
 		
 		String inFileName = directory + fileName;
 		
@@ -107,9 +107,6 @@ public class Main {
 			}catch(Exception ex) {
 				
 			}
-			
-			
-			
 			StreamEdge oldestEdge = sw.add(item);
 			
 			long remove_start_time = System.currentTimeMillis();

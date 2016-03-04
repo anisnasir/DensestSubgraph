@@ -1,11 +1,12 @@
 package src;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
 
 public class SnowBallStats {
-	HashMap<SnowBall,LinkedList<SnowBallStatsEntry>> map = new HashMap<SnowBall,LinkedList<SnowBallStatsEntry>>();
+	HashMap<SnowBall,ArrayList<SnowBallStatsEntry>> map = new HashMap<SnowBall,ArrayList<SnowBallStatsEntry>>();
 	public void addEdge(SnowBall s1, SnowBall s2, StreamEdge edge) {
 		addEdgeHelper(s1, s2, edge);
 		addEdgeHelper(s2, s1, edge);
@@ -13,7 +14,7 @@ public class SnowBallStats {
 	
 	void addEdgeHelper(SnowBall s1, SnowBall s2, StreamEdge edge) {
 		if(map.containsKey(s1)) {
-			LinkedList<SnowBallStatsEntry> list = map.get(s1);
+			ArrayList<SnowBallStatsEntry> list = map.get(s1);
 			for(SnowBallStatsEntry entry: list) {
 				if(entry.a.equals(s2)) {
 					entry.addEdge(edge);
@@ -25,7 +26,7 @@ public class SnowBallStats {
 			entry.addEdge(edge);
 			list.add(entry);
 		}else {
-			LinkedList<SnowBallStatsEntry> list = new LinkedList<SnowBallStatsEntry>();
+			ArrayList<SnowBallStatsEntry> list = new ArrayList<SnowBallStatsEntry>();
 			SnowBallStatsEntry entry = new SnowBallStatsEntry();
 			entry.setKey(s2);
 			entry.addEdge(edge);
@@ -36,7 +37,7 @@ public class SnowBallStats {
 	
 	public int getNumEdgesBetween(SnowBall s1, SnowBall s2) {
 		if(map.containsKey(s1)) {
-			LinkedList<SnowBallStatsEntry> list = map.get(s1);
+			ArrayList<SnowBallStatsEntry> list = map.get(s1);
 			for(SnowBallStatsEntry entry:list) {
 				if(entry.a.equals(s2)) {
 					return entry.getNumEdges();
@@ -48,7 +49,7 @@ public class SnowBallStats {
 	
 	public void removeSnowBall(SnowBall snowBall) {
 		if(map.containsKey(snowBall)) {
-			LinkedList<SnowBallStatsEntry> list = map.get(snowBall);
+			ArrayList<SnowBallStatsEntry> list = map.get(snowBall);
 			if(list.size() == 0) {
 				map.remove(snowBall);
 				return;
@@ -70,7 +71,7 @@ public class SnowBallStats {
 	
 	void remove(SnowBall from, SnowBall snowBall) {
 		if(map.containsKey(from)){
-			LinkedList<SnowBallStatsEntry> list = map.get(from);
+			ArrayList<SnowBallStatsEntry> list = map.get(from);
 			if(list.size() == 0)
 				return;
 			SnowBallStatsEntry temp = null;
@@ -90,7 +91,7 @@ public class SnowBallStats {
 	public void removeNode(SnowBall snowBall, String node) {
 		HashMap<SnowBall,String> redundant = new HashMap<SnowBall,String> ();
 		if(map.containsKey(snowBall)) {
-			LinkedList<SnowBallStatsEntry> list = map.get(snowBall);
+			ArrayList<SnowBallStatsEntry> list = map.get(snowBall);
 			if(list.size()!=0) {
 				for(SnowBallStatsEntry entry: list) {
 					if(entry.containsNode(node)) {
@@ -106,7 +107,7 @@ public class SnowBallStats {
 	void removeNodeHelper(HashMap<SnowBall,String> redundant, SnowBall snowBall) {
 		for(SnowBall s: redundant.keySet()) {
 			String entry = redundant.get(s);
-			LinkedList<SnowBallStatsEntry> list = map.get(s);
+			ArrayList<SnowBallStatsEntry> list = map.get(s);
 			for(SnowBallStatsEntry newEntry : list) { 
 				if(newEntry.a.equals(snowBall))
 					newEntry.removeNode(entry);
@@ -125,7 +126,7 @@ public class SnowBallStats {
 	
 	void removeEdgeHelper(SnowBall srcBall, String src, SnowBall dstBall, String dst) {
 		if(map.containsKey(srcBall)) {
-			LinkedList<SnowBallStatsEntry> list = map.get(srcBall);
+			ArrayList<SnowBallStatsEntry> list = map.get(srcBall);
 			if(list!=null) {
 				for(SnowBallStatsEntry entry:list) {
 					if(entry.a.equals(dstBall)) {
@@ -138,7 +139,7 @@ public class SnowBallStats {
 	
 	public int getEdgesFromNodetoSnowBall(SnowBall srcSnowBall, String src, SnowBall dstSnowBall) {
 		if(map.containsKey(srcSnowBall)) {
-			LinkedList<SnowBallStatsEntry> list = map.get(srcSnowBall);
+			ArrayList<SnowBallStatsEntry> list = map.get(srcSnowBall);
 			for(SnowBallStatsEntry entry: list) {
 					if(entry.a.equals(dstSnowBall)) {
 						if(entry.graph.containsKey(src))
@@ -146,7 +147,18 @@ public class SnowBallStats {
 					}
 				}
 			}
-		return 0;
-			
+		return 0;	
+	}
+	
+	HashMap<String,HashSet<String>> getBulkEdges(SnowBall s1, SnowBall s2) {
+		if(map.containsKey(s1)) {
+			ArrayList<SnowBallStatsEntry> list = map.get(s1);
+			for(SnowBallStatsEntry entry:list) {
+				if(entry.a.equals(s2)) {
+					return entry.graph;
+				}
+			}
+		}
+		return null;
 	}
 }

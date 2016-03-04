@@ -1,4 +1,5 @@
 package src;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -8,18 +9,18 @@ import java.util.HashSet;
  * Degree map store <degree, Set<String> nodes> in a HashMap
  */
 public class DegreeMap {
-	HashMap<Integer,HashSet<String>>  map;
+	HashMap<Integer,ArrayList<String>>  map;
 	DegreeMap() {
-		map = new HashMap<Integer,HashSet<String>> ();
+		map = new HashMap<Integer,ArrayList<String>> ();
 	}
 	
 	void addNode(int degree, String nodeId) {
 		if (map.containsKey(degree)) {
-			HashSet<String> nodes = map.get(degree);
+			ArrayList<String> nodes = map.get(degree);
 			nodes.add(nodeId);
 			map.put(degree, nodes);
 		}else {
-			HashSet<String> neighbors = new HashSet<String> ();
+			ArrayList<String> neighbors = new ArrayList<String> ();
 			neighbors.add(nodeId);
 			map.put(degree, neighbors);
 		}
@@ -27,13 +28,13 @@ public class DegreeMap {
 	
 	void removeNode(int degree, String nodeId) {
 		if (map.containsKey(degree)) {
-			HashSet<String> nodes = map.get(degree);
+			ArrayList<String> nodes = map.get(degree);
 			nodes.remove(nodeId);
 			map.put(degree, nodes);
 		}
 	}
 	
-	HashSet<String> getNodes(int degree) {
+	ArrayList<String> getNodes(int degree) {
 		return this.map.get(degree);
 	}
 	
@@ -47,7 +48,7 @@ public class DegreeMap {
 		addNode(degree-1,nodeId);
 	}
 	
-	HashSet<String> getNodesBetween(double upperBound, double lowerBound) {
+	ArrayList<String> getNodesBetween(double upperBound, double lowerBound) {
 		if(Math.floor(upperBound) < lowerBound) {
 			return null;
 		}else {

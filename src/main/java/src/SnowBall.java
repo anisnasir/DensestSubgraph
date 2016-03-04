@@ -1,5 +1,6 @@
 package src;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -42,12 +43,12 @@ public class SnowBall implements Serializable, Comparable<SnowBall>{
 	void removeNode(String src) {
 		HashSet<String> neighbors = graph.get(src);
 		if(neighbors != null ) {
-			HashSet<String> removeNodes = new HashSet<String>();
+			ArrayList<String> removeNodes = new ArrayList<String>();
 			for(String neighbor:neighbors) {
-				graph.get(neighbor).remove(src);
 				removeNodes.add(neighbor);
 			}
 			for( String neighbor:removeNodes) {
+				graph.get(neighbor).remove(src);
 				graph.get(src).remove(neighbor);
 				numEdges--;
 				kCore.removeEdge(src, neighbor);
@@ -68,7 +69,7 @@ public class SnowBall implements Serializable, Comparable<SnowBall>{
 		if(numNodes == 0)
 			return 0;
 		
-		density = numEdges/(double)numNodes;
+		this.density = numEdges/(double)numNodes;
 		//density = approximator.getApproximation((HashMap<String,HashSet<String>>)graph.clone(), numEdges, numNodes);
 		return this.density;
 	}
@@ -135,75 +136,45 @@ public class SnowBall implements Serializable, Comparable<SnowBall>{
 		numNodes++;
 		return;
 	}
-	public void ensureFirstInVariant(NodeMap nodeMap, HashSet<String> temp) {
+	public void ensureFirstInVariant(NodeMap nodeMap, ArrayList<String> temp) {
 		
 		while(!verifyFirstInVariant(nodeMap, temp)) {
 			/* 1. remove all the node with degrees lower than the density
 			 * 2. remove all the nodes with degree less than the maximal density
 			 * 3. remove all the nodes with core number lower than the maximum core
 			 */
-			//getDensity();
+			getDensity();
 		}
 	}
 	
-	boolean verifyFirstInVariant(NodeMap nodeMap, HashSet<String> temp) {
+	boolean verifyFirstInVariant(NodeMap nodeMap, ArrayList<String> temp) {
 		/*apply Charikar in bulk
 		 * removing all the nodes with degree 
 		 * lower than the density
 		 */
 		boolean flag = true;
 		double newDensity = getDensity();
-		HashSet<String> removeNodes = new HashSet<String>();
-		
+		ArrayList<String> removeNodes = new ArrayList<String>();
+	
 		for(String str:graph.keySet()) {
 			int globalDegree = nodeMap.getDegree(str);
 			HashSet<String> neighbors = graph.get(str);
 			int localDegree = neighbors.size();
 			if(globalDegree < maximalDensity) {
-				for(String neighbor: neighbors) {
-					graph.get(neighbor).remove(str);
-					kCore.removeEdge(str, neighbor);
-				}
-				numEdges-=localDegree;
 				removeNodes.add(str);
-				kCore.removeNode(str);
-				stats.removeNode(this, str);
-				numNodes--;
 				flag =  false;
 			}else if (localDegree < newDensity || kCore.getKCore(str) < this.getMainCore()) {
-				for(String neighbor: neighbors) {
-					graph.get(neighbor).remove(str);
-					kCore.removeEdge(str, neighbor);
-				}
-				numEdges-=localDegree;
-				kCore.removeNode(str);
-				numNodes--;
 				removeNodes.add(str);
 				temp.add(str);
 				flag = false;
 			}
 		}
 		if(!flag)
-			for(String str:removeNodes) 
-				graph.remove(str);
+			for(String str:removeNodes) {
+				removeNode(str);
+			}
 		return flag;
 	}
-	
-	/*public void ensureSecondInVariant(NodeMap nodeMap, HashSet<String> temp) {
-		double mainCore = kCore.mainCore();
-		HashSet<String> nodes = new HashSet<String>();
-		for(String str: graph.keySet()) {
-			if(kCore.getKCore(str) < mainCore)
-				nodes.add(str);
-		}
-		
-		for(String str: nodes) {
-			removeNode(str);
-			if(nodeMap.getDegree(str) >= maximalDensity)
-				temp.add(str);
-		}
-		this.getDensity();
-	}*/
 	boolean contains(String src) {
 		return graph.containsKey(src);
 	}
@@ -225,9 +196,9 @@ public class SnowBall implements Serializable, Comparable<SnowBall>{
 		String dst = edge.getDestination();
 		if(graph.containsKey(src) )
 			if(!graph.get(src).contains(dst)) {
-				graph.get(src).add(dst);
 				if(graph.containsKey(dst))
 					if(!graph.get(dst).contains(src)) {
+						graph.get(src).add(dst);
 						graph.get(dst).add(src);
 						numEdges++;
 						kCore.addEdge(src, dst);
@@ -282,7 +253,7 @@ public class SnowBall implements Serializable, Comparable<SnowBall>{
 
 	@Override
 	public int compareTo(SnowBall o) {
-		if (id.equals(o.id))
+		if (id.equals(o.id) || o.getDensity() == this.getDensity())
 			return 0;
 		else if (this.getDensity() >= o.getDensity())
 			return 1;

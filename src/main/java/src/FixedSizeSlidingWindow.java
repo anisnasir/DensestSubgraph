@@ -16,7 +16,7 @@ public class FixedSizeSlidingWindow {
 	}
 	
 	StreamEdge add(StreamEdge newEdge) {
-		fifo.add(newEdge);
+		fifo.addLast(newEdge);
 		if(fifo.size() >=windowSize) {
 			StreamEdge returnEdge = fifo.removeFirst();
 			return returnEdge;
