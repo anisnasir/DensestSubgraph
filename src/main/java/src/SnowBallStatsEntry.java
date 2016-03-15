@@ -67,7 +67,7 @@ public class SnowBallStatsEntry implements Serializable, Comparable<SnowBallStat
 		
 	}
 	void removeNode(String str) {
-		HashSet<String> neighbors = graph.get(str);
+		HashSet<String> neighbors = new HashSet<String>(graph.get(str));
 		if(neighbors != null)
 			for(String neighbor:neighbors) {
 				graph.get(neighbor).remove(str);

@@ -1,13 +1,16 @@
 package src;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 
 public class KCoreDecomposition {
-	HashMap<String,HashSet<String>> graph;
+	LinkedHashMap<String,ArrayList<String>> graph;
 	HashMap<String,Integer> kCore;
+	int maxCore = 0;
 	
-	KCoreDecomposition(HashMap<String,HashSet<String>> graph) {
+	KCoreDecomposition(LinkedHashMap<String,ArrayList<String>> graph) {
 		kCore = new HashMap<String,Integer>();
 		this.graph = graph;
 	}
@@ -26,10 +29,23 @@ public class KCoreDecomposition {
 	
 	void addEdge(String src, String dst) {
 		updateKCoreafterAddition(src,dst);
+		int srcCore = getKCore(src);
+		if(srcCore > maxCore)
+			maxCore = srcCore;
+		
+		int dstCore = getKCore(src);
+		if(dstCore > maxCore)
+			maxCore = dstCore;
 	}
 	
 	void removeEdge(String src, String dst) {
+		int srcCore = getKCore(src);
+		int dstCore = getKCore(dst);
+		boolean flag = false;
+		if(srcCore == maxCore || dstCore == maxCore)
+			flag = true;
 		updateKCoreafterDeletion(src,dst);	
+		maxCore = mainCoreLocal();
 	}
 	
 	void updateKCoreafterAddition(String src, String dst) {
@@ -57,7 +73,7 @@ public class KCoreDecomposition {
 		if(!color.contains(dst))
 			color.add(dst);
 		
-		HashSet<String> neighbors = graph.get(dst);
+		ArrayList<String> neighbors = graph.get(dst);
 		for(String neighbor:neighbors) {
 			if(!visited.contains(neighbor) && this.getKCore(neighbor) == c )
 				color(neighbor,c,visited,color);
@@ -71,7 +87,7 @@ public class KCoreDecomposition {
 		HashSet<String> nodestoRemove = new HashSet<String>();
 		for(String str: color) {
 			int X_u = 0;;
-			HashSet<String> neighbors = graph.get(str);
+			ArrayList<String> neighbors = graph.get(str);
 			for(String neighbor: neighbors)  {
 				if(color.contains(neighbor) || this.getKCore(neighbor) > c) 
 					X_u++;
@@ -138,7 +154,7 @@ public class KCoreDecomposition {
 			HashSet<String> nodestoRemove = new HashSet<String>();
 			for(String str: V_c) {
 				int X_u = 0;;
-				HashSet<String> neighbors = graph.get(str);
+				ArrayList<String> neighbors = graph.get(str);
 				for(String neighbor: neighbors)  {
 					if(V_c.contains(neighbor) || this.getKCore(neighbor) > c) 
 						X_u++;
@@ -168,12 +184,12 @@ public class KCoreDecomposition {
 		for (String name: graph.keySet()){
 
             String key =name;
-            HashSet<String> value = graph.get(key);  
+            ArrayList<String> value = graph.get(key);  
             System.out.println(key + " " + value);  
 		} 
 	}
 	
-	int mainCore() {
+	int mainCoreLocal() {
 		int max = 0;
 		for (String str:kCore.keySet()) {
 			int  value = kCore.get(str);
@@ -181,6 +197,9 @@ public class KCoreDecomposition {
 				max = value;
 		}
 		return max;
+	}
+	int mainCore() {
+		return maxCore;
 	}
 	
 }

@@ -67,7 +67,7 @@ set format x "10^{%L}"
 #set format x "%t"
 #set xtics (0.4, 0.8, 1.2, 1.6, 2.0)
 
-plot "output_deletion_com-dblp.ungraph.txt" using 0:1 title "deletion time"
+#plot "output_deletion_com-dblp.ungraph.txt" using 0:1 title "deletion time"
 
 
 !epstopdf "plot-time.eps"

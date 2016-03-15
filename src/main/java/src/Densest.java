@@ -1,4 +1,5 @@
 package src;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -6,17 +7,17 @@ import java.util.Set;
 
 public class Densest {
 	double density;
-	HashMap<String,HashSet<String>> densest;
+	HashMap<String,ArrayList<String>> densest;
 	public double getDensity() {
 		return density;
 	}
 	public void setDensity(double density) {
 		this.density = density;
 	}
-	public HashMap<String,HashSet<String>> getDensest() {
+	public HashMap<String,ArrayList<String>> getDensest() {
 		return densest;
 	}
-	public void setDensest(HashMap<String,HashSet<String>> densest_subgraph) {
+	public void setDensest(HashMap<String,ArrayList<String>> densest_subgraph) {
 		this.densest = densest_subgraph;
 	}
 	

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
+import java.util.Properties;
 import java.util.zip.GZIPInputStream;
 
 public class Main {
@@ -19,13 +20,23 @@ public class Main {
 	}
 
 	public static void main(String[] args) throws IOException {
-		if (args.length < 3) {
+		if (args.length < 4) {
 			ErrorMessage();
 		}
 		String directory = args[0];
 		String fileName = args[1];
 		int windowSize = Integer.parseInt(args[2]);
-		boolean LOGGING = Boolean.parseBoolean(args[3]);
+		Properties prop = new Properties();
+		try {
+
+			InputStream input = new FileInputStream("config.properties");
+			prop.load(input);
+			input.close();
+		} catch (Exception ex) {
+			
+		}
+		boolean LOGGING = Boolean.parseBoolean(prop.get("LOGGING").toString());
+		int k = Integer.parseInt(args[4]);
 		String sep = "\t";
 	
 		
@@ -60,7 +71,7 @@ public class Main {
 		NodeMap nodeMap = new NodeMap();
 		DegreeMap degreeMap = new DegreeMap();
 		UtilityFunctions utility = new UtilityFunctions();
-		BagOfSnowballs bag = new BagOfSnowballs(LOGGING);
+		BagOfSnowballs bag = new BagOfSnowballs(fileName);
 		
 		//Initializing the window
 		FixedSizeSlidingWindow sw = new FixedSizeSlidingWindow(windowSize);
@@ -78,7 +89,7 @@ public class Main {
 				
 			}
 			
-			if(++flush_counter%10000 == 0) {
+			if(++flush_counter%100000 == 0) {
 				try {
 					output_insert.flush();
 					output_density.flush(); 
@@ -87,15 +98,14 @@ public class Main {
 					
 				}
 			}
-			long insert_start_time = System.currentTimeMillis();
+			long insert_start_time = System.nanoTime();
 			utility.handleEdgeAddition(item,nodeMap,degreeMap);
 			bag.addEdge(item, nodeMap);
 			Densest s = bag.getApproximation();
 			if(LOGGING)
 				bag.print();
-			
-			long insert_end_time  = System.currentTimeMillis();
-			double insert_time = (insert_end_time-insert_start_time)/(double)(1000);
+			 
+			long insert_time = (System.nanoTime()-insert_start_time);
 			try {
 				output_insert.write(insert_time+"\n");
 				
@@ -103,28 +113,32 @@ public class Main {
 				
 			}
 			try {
-				output_density.write(s.getDensity()+"\t"+ s.getDensest().size()+"\n");
+				output_density.write(s.getDensity()+"\t"+ s.getDensest().size()+"\t" + bag.getNumOfSnowBalls()+"\n");
 			}catch(Exception ex) {
 				
 			}
 			StreamEdge oldestEdge = sw.add(item);
 			
-			long remove_start_time = System.currentTimeMillis();
+			
 			if(oldestEdge != null) {
+				long remove_start_time = System.nanoTime();
 				utility.handleEdgeDeletion(oldestEdge, nodeMap, degreeMap);
 				bag.removeEdge(oldestEdge,nodeMap, degreeMap);
-				if(LOGGING)
+				if(LOGGING) {
 					bag.print();
 					s = bag.getApproximation();
+				}
+				long remove_end_time  = System.nanoTime();
+				double remove_time = (remove_end_time-remove_start_time);
+				try {
+				output_remove.write(remove_time+"\n");
+				}catch(Exception ex) {
+					
+				}
 				reader.edgeCount--;	
-			}
-			long remove_end_time  = System.currentTimeMillis();
-			double remove_time = (remove_end_time-remove_start_time)/(double)1000;
-			try {
-			output_remove.write(remove_time+"\n");
-			}catch(Exception ex) {
 				
 			}
+			
 			item = reader.nextItem();
 			if(item !=null)
 				while(nodeMap.contains(item) ) {
@@ -154,7 +168,7 @@ public class Main {
 		// close all files
 		in.close();
 		
-		LinkedList<Densest> topK = bag.getTopK(3);
+		LinkedList<Densest> topK = bag.getTopK(k);
 		printTopK(topK);
 	}
 	

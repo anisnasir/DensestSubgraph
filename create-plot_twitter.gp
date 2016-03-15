@@ -1,7 +1,7 @@
 set terminal postscript eps enhanced color "Arial,18"
 set output "plot-time.eps"
 
-set size 1.8,0.6
+set size 2.4,0.6
 
 
 set multiplot
@@ -52,13 +52,14 @@ set format x "10^{%L}"
 plot "output_density_twitter_combined_modified.txt" using 0:1 title "densities" axes x1y1,\
 '' using 0:2 title 'size' axes x1y2
 
+unset y2tics
 unset key
 set key t l box
-set title "densities"
+set title "deletion time"
 set origin 1.2,0
 set size 0.6,0.6
 set xlabel "keys"
-set ylabel "densities"
+set ylabel "processing time"
 set xtics
 set format x "10^{%L}"
 #set logscale y

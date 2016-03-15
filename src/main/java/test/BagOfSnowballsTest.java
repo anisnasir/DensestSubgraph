@@ -19,7 +19,7 @@ public class BagOfSnowballsTest {
 		StreamEdge edge2 = new StreamEdge("C","D");
 		addEdge(edge1,nodeMap);
 		addEdge(edge2,nodeMap);
-		BagOfSnowballs bag = new BagOfSnowballs(false);
+		BagOfSnowballs bag = new BagOfSnowballs("");
 		bag.addEdge(edge1,nodeMap);
 		
 		assertEquals(bag.getNumOfSnowBalls(),1);
